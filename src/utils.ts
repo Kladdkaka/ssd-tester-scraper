@@ -1,31 +1,35 @@
+import { z } from 'zod';
+
 export type Country = 'us' | 'de' | 'fr' | 'it' | 'es' | 'pl';
 
-export type Entry = {
-    score: number;
-    product: string;
-    capacity: number;
-    nand: string;
-    dram: boolean;
-    tbw: number;
-    interface: string;
-    cache: number;
-    as_ssd_read: number;
-    as_ssd_write: number;
-    as_ssd_4k_read: number;
-    as_ssd_4k_write: number;
-    iops_4k_read: number;
-    iops_4k_write: number;
-    iops_read: number;
-    iops_write: number;
-    cdm_read: number;
-    cdm_write: number;
-    cdm_4k_read: number;
-    cdm_4k_write: number;
-    access_time_read: number;
-    access_time_write: number;
-    price: number;
-    price_gb: number;
-}
+export const EntrySchema = z.object({
+    score: z.number().nonnegative(),
+    product: z.string().min(1),
+    capacity: z.number().positive(),
+    nand: z.string(),
+    dram: z.boolean(),
+    tbw: z.number().nonnegative(),
+    interface: z.string().min(1),
+    cache: z.number().nonnegative(),
+    as_ssd_read: z.number().nonnegative(),
+    as_ssd_write: z.number().nonnegative(),
+    as_ssd_4k_read: z.number().nonnegative(),
+    as_ssd_4k_write: z.number().nonnegative(),
+    iops_4k_read: z.number().nonnegative(),
+    iops_4k_write: z.number().nonnegative(),
+    iops_read: z.number().nonnegative(),
+    iops_write: z.number().nonnegative(),
+    cdm_read: z.number().nonnegative(),
+    cdm_write: z.number().nonnegative(),
+    cdm_4k_read: z.number().nonnegative(),
+    cdm_4k_write: z.number().nonnegative(),
+    access_time_read: z.number().nonnegative(),
+    access_time_write: z.number().nonnegative(),
+    price: z.number().nonnegative(),
+    price_gb: z.number().nonnegative(),
+});
+
+export type Entry = z.infer<typeof EntrySchema>;
 
 const HEADER_MAPPING: Record<Country, Record<string, keyof Entry>> = {
     us: {
@@ -75,37 +79,6 @@ const HEADER_BLACKLIST: Record<Country, string[]> = {
     pl: ['Image', 'Test', 'Shop'],
 }
 
-/*
-example:
-/*
-  }, {
-    score: "7009",
-    product: "Patriot Viper VP4300 Lite 2TB",
-    capacity: "2048&nbsp;GB",
-    nand: "TLC",
-    dram: "No",
-    tbw: "1600&nbsp;TB",
-    interface: "PCIe 4.0 x4",
-    cache: "210 GB",
-    as_ssd_read: "6170&nbsp;MB/s",
-    as_ssd_write: "5750&nbsp;MB/s",
-    as_ssd_4k_read: "69&nbsp;MB/s",
-    as_ssd_4k_write: "174&nbsp;MB/s",
-    iops_4k_read: "838.925&nbsp;IOPS",
-    iops_4k_write: "531.789&nbsp;IOPS",
-    iops_read: "7.093&nbsp;IOPS",
-    iops_write: "6.358&nbsp;IOPS",
-    cdm_read: "7438&nbsp;MB/s",
-    cdm_write: "6667&nbsp;MB/s",
-    cdm_4k_read: "77&nbsp;MB/s",
-    cdm_4k_write: "178&nbsp;MB/s",
-    access_time_read: "0,022&nbsp;ms",
-    access_time_write: "0,265&nbsp;ms",
-    price: "116&nbsp;$",
-    price_gb: "0,06&nbsp;$",
-  }, {
-*/
-
 type EntryMapper = (value: string) => Entry[keyof Entry];
 
 // default mapper exists for all countries, but can be overridden by the specific country
@@ -117,7 +90,7 @@ const DEFAULT_MAPPER: Record<keyof Entry, EntryMapper> = {
     dram: (value: string) => value === '✓ Yes' ? true : value === 'No' ? false : (() => { throw new Error(`Invalid value for dram: ${value}`) })(),
     tbw: (value: string) => parseInt(value.replace('&nbsp;TB', '')),
     interface: (value: string) => value,
-    cache: (value: string) => parseInt(value.replace(' GB', '')),
+    cache: (value: string) => parseInt(value.replace(' GB', '').replace('>', '')),
     as_ssd_read: (value: string) => parseInt(value.replace('&nbsp;MB/s', '')),
     as_ssd_write: (value: string) => parseInt(value.replace('&nbsp;MB/s', '')),
     as_ssd_4k_read: (value: string) => parseInt(value.replace('&nbsp;MB/s', '')),
@@ -151,7 +124,7 @@ const COUNTRY_SPECIFIC_MAPPERS: Record<Country, Partial<Record<keyof Entry, Entr
     },
 };
 
-function getMapper(country: Country, key: keyof Entry): EntryMapper {
+export function mapper(country: Country, key: keyof Entry): EntryMapper {
     return COUNTRY_SPECIFIC_MAPPERS[country]?.[key] ?? DEFAULT_MAPPER[key];
 }
 

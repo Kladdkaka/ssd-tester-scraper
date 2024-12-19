@@ -1,11 +1,9 @@
-import { HEADER_BLACKLIST, HEADER_MAPPING, type Country, type Entry } from "./utils";
+import { EntrySchema, HEADER_BLACKLIST, HEADER_MAPPING, mapper, type Country, type Entry } from "./utils";
 
 
 
 export function normalize(country: Country, headers: string[], rows: string[][]): Entry[] {
-    console.log(`Headers: ${headers.join(', ')}`);
-
-    const entries = rows.map((row, index) => {
+    return rows.map((row, index) => {
         const entry: Record<string, any> = {};
 
         if (row.length !== headers.length) {
@@ -20,11 +18,9 @@ export function normalize(country: Country, headers: string[], rows: string[][])
             const key = HEADER_MAPPING[country][header];
             let value = row[index];
 
-            entry[key] = value;
+            entry[key] = mapper(country, key)(value);
         });
 
-        return entry;
+        return EntrySchema.parse(entry);
     });
-
-    return entries;
 }

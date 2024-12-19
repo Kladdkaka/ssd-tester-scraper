@@ -50,8 +50,6 @@ console.error(`Setting country to ${country} and format to ${format}`);
 
 const url = `https://ssd-tester.${country === 'us' ? 'com' : country}/top_ssd.php`;
 
-console.log(url);
-
 const cacheFile = `.cache_${country}_${format}.txt`;
 
 let content: string;
@@ -81,7 +79,6 @@ try {
 const { headers, rows } = parseResponse(new Response(content));
 const entries = normalize(country, headers, rows);
 
-//console.log(headers);
-//console.log(rows);
-
-console.log(entries);
+if (format === 'json') {
+    console.log(JSON.stringify(entries, null, 2));
+}
