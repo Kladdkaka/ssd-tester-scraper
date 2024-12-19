@@ -50,7 +50,7 @@ const url = `https://ssd-tester.${country === 'us' ? 'com' : country}/top_ssd.ph
 
 const cacheFile = `.cache_${country}_${format}.txt`;
 
-let content: string;
+/*let content: string;
 try {
     if (await Bun.file(cacheFile).exists()) {
         console.error("Using cached data");
@@ -72,9 +72,18 @@ try {
 }
 
 
+const { headers, rows } = parseResponse(new Response(content));*/
 
+const response = await fetch(url);
 
-const { headers, rows } = parseResponse(new Response(content));
+if (!response.ok) {
+    console.error(`HTTP error! status: ${response.status}`);
+    process.exit(1);
+}
+
+const text = await response.text();
+
+const { headers, rows } = parseResponse(new Response(text));
 const entries = normalize(country, headers, rows);
 
 if (format === 'json') {
