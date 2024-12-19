@@ -1,7 +1,6 @@
 import { parseArgs } from "util";
 import { parseResponse } from "./parser";
 import { normalize } from "./normalizer";
-import { count } from "console";
 import type { Country } from "./utils";
 
 const { values } = parseArgs({
@@ -47,32 +46,6 @@ const format = values.format as string;
 console.error(`Setting country to ${country} and format to ${format}`);
 
 const url = `https://ssd-tester.${country === 'us' ? 'com' : country}/top_ssd.php`;
-
-const cacheFile = `.cache_${country}_${format}.txt`;
-
-/*let content: string;
-try {
-    if (await Bun.file(cacheFile).exists()) {
-        console.error("Using cached data");
-        content = await Bun.file(cacheFile).text();
-    } else {
-        console.error("Downloading fresh data");
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        content = await response.text();
-        await Bun.write(cacheFile, content);
-    }
-} catch (error) {
-    console.error("Error fetching or reading data:", error);
-    process.exit(1);
-}
-
-
-const { headers, rows } = parseResponse(new Response(content));*/
 
 const response = await fetch(url);
 
