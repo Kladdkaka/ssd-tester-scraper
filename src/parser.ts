@@ -16,11 +16,9 @@ export function parseResponse(response: Response): { headers: string[], rows: st
 
     rewriter.on('table', {
         element(element) {
-            console.log(element.tagName);
             tableStarted = true;
 
             element.onEndTag((tag) => {
-                console.log(`End of table: ${tag.name}`);
                 tableStarted = false;
             });
         }

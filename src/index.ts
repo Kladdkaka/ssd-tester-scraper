@@ -44,8 +44,6 @@ if (!['us', 'de', 'fr', 'it', 'es', 'pl'].includes(values.country as string)) {
 const country = values.country as string as Country;
 const format = values.format as string;
 
-
-
 console.error(`Setting country to ${country} and format to ${format}`);
 
 const url = `https://ssd-tester.${country === 'us' ? 'com' : country}/top_ssd.php`;
